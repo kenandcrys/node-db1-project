@@ -1,7 +1,7 @@
 const router = require('express').Router()
+const md = require('./accounts-middleware')
 
-router.get('/', (req, res, next) => {
-  // DO YOUR 
+router.get('/', (req, res, next) => { 
   try{
       res.json([{},{}])
   } catch (err) {
@@ -9,43 +9,50 @@ router.get('/', (req, res, next) => {
   }
 })
 
-router.get('/:id', (req, res, next) => {
+router.get('/:id', md.checkAccountId, (req, res, next) => {
   // DO YOUR 
   try{
-    throw new Error("This is router.get `/:id`")
+    res.json('get accounts by id')
   } catch (err) {
     next(err)
   }
 })
 
-router.post('/', (req, res, next) => {
+router.post('/',
+  md.checkAccountPayload,
+  md.checkAccountNameUnique,
+  (req, res, next) => {
   // DO YOUR 
   try{
-    throw new Error("This is router.post `/`")
+    res.json('post accounts')
   } catch (err) {
     next(err)
   }
 })
 
-router.put('/:id', (req, res, next) => {
+router.put('/:id',
+  md.checkAccountNameUnique,
+  md.checkAccountPayload,
+  md.checkAccountId, 
+  (req, res, next) => {
   // DO YOUR 
   try{
-    throw new Error("This is router.put `/:id`")
+    res.json('update accounts ny id')
   } catch (err) {
     next(err)
   }
 });
 
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', md.checkAccountId, (req, res, next) => {
   // DO YOUR 
   try{
-    throw new Error("This is router.delete `/:id`")
+    res.json('get accounts')
   } catch (err) {
     next(err)
   }
 })
 
-router.use((err, req, res, next) => { // eslint-disable-line
+router.use((err, req, res, next) => {
   // DO YOUR 
   res.status(err.status || 500).json({
     message: err.message,
