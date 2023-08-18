@@ -1,5 +1,7 @@
+
+
 const getAll = () => {
-  // DO YOUR MAGIC
+
 }
 
 const getById = id => {
