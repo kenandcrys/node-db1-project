@@ -2,7 +2,7 @@ const router = require('express').Router()
 const md = require('./accounts-middleware')
 const Account = require('./accounts-model')
 
-router.get('/', async (req, res, next) => { 
+router.get('/', async (_req, res, next) => { 
   try{
      const accounts = await Account.getAll();
      res.status(200).json(accounts)
@@ -35,26 +35,60 @@ router.post('/',
   md.checkAccountPayload,
   md.checkAccountNameUnique,
   (req, res, next) => {
-  // DO YOUR 
-  try{
-    res.json('post accounts')
-  } catch (err) {
-    next(err)
-  }
-})
+    let { name, budget } = req.body;
+
+    // Trim whitespace from the account name
+    name = name.trim();
+
+    // Convert budget to a number using Number()
+    budget = Number(budget);
+
+    Account.create({ name, budget })
+      .then(newAccount => {
+        res.status(201).json(newAccount);
+      })
+      .catch(err => {
+        if (err.message.includes('name_unique_constraint')) {
+          res.status(400).json({ message: 'Name is already taken' });
+        } else {
+          next(err);
+        }
+      });
+});
+
+module.exports = router;
+
+module.exports = router;
+
+
 
 router.put('/:id',
-  md.checkAccountNameUnique,
+  md.checkAccountId,
   md.checkAccountPayload,
-  md.checkAccountId, 
-  (req, res, next) => {
-  // DO YOUR 
-  try{
-    res.json('update accounts by id')
-  } catch (err) {
-    next(err)
-  }
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      let { name, budget } = req.body;
+
+      name = name.trim();
+      budget = Number(budget);
+
+      if (name === undefined || budget === undefined) {
+        return res.status(400).json({ message: 'name and budget are required' });
+      }
+
+      const updatedAccount = {
+        name,
+        budget
+      };
+
+      const updated = await Account.updateById(id, updatedAccount);
+      res.status(200).json(updated);
+    } catch (err) {
+      next(err);
+    }
 });
+
 
 router.delete('/:id', md.checkAccountId, async (req, res, next) => {
   try {
@@ -75,5 +109,6 @@ router.use((err, _req, res, next) => {
   res.status(err.status || 500).json({
     message: err.message,
   });
+  next()
 });
 module.exports = router;
