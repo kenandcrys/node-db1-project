@@ -13,7 +13,22 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id', md.checkAccountId, async (req, res, next) => {
 
-  res.json(req.account)
+  try {
+    const account = await Account.getById(req.params.id);
+    if(account){
+      res.json(req.account)
+      next()
+    } else {
+      next({
+        status: 404,
+        message: "account not found"
+      })
+    }
+
+  } catch (err) {
+    next(err)
+  }
+ 
 })
 
 router.post('/',
@@ -35,26 +50,30 @@ router.put('/:id',
   (req, res, next) => {
   // DO YOUR 
   try{
-    res.json('update accounts ny id')
+    res.json('update accounts by id')
   } catch (err) {
     next(err)
   }
 });
 
-router.delete('/:id', md.checkAccountId, (req, res, next) => {
-  // DO YOUR 
-  try{
-    res.json('get accounts')
-  } catch (err) {
-    next(err)
-  }
-})
+router.delete('/:id', md.checkAccountId, async (req, res, next) => {
+  try {
+    const { id } = req.params;
 
-router.use((err, req, res, next) => {
-  // DO YOUR 
+    await Account.deleteById(id);
+
+    res.json({ message: `Account with ID ${id} has been deleted.` });
+    
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+router.use((err, _req, res, next) => {
+  // Handle the error
   res.status(err.status || 500).json({
     message: err.message,
-  })
-})
-
+  });
+});
 module.exports = router;

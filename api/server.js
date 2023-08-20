@@ -8,11 +8,11 @@ server.use(express.json());
 server.use('/api/accounts', accRoutes)
 
 
-server.use('*', (_req, res) => {
-    res.status(404).json({
-        message: "not found"
-    });
-});
+// server.use('*', (_req, res) => {
+//     res.status(404).json({
+//         message: "not found"
+//     });
+// });
 
 
 module.exports = server;
